@@ -3,7 +3,6 @@ import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import InputBase from '@mui/material/InputBase';
 import BookSharpIcon from '@mui/icons-material/BookSharp';
@@ -11,6 +10,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import ShoppingCartSharpIcon from '@mui/icons-material/ShoppingCartSharp';
 import SearchResult from './SearchResult';
 import { CircularProgress } from '@mui/material';
+import { useLocation } from 'react-router-dom';
 
 
 const SearchWrapper = styled('div')(({ theme }) => ({
@@ -78,6 +78,33 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export default function SearchAppBar() {
     const [searchIsFocused, setSearchIsFocused] = React.useState(false);
     const [isLoading, setIsLoading] = React.useState(false);
+    const location = useLocation();
+
+    React.useEffect(() => {
+        setSearchIsFocused(false);
+    }, [location]);
+
+
+
+    const searchRef = React.useRef(null);
+    const searchResultRef = React.useRef(null);
+
+    React.useEffect(() => {
+        /**
+         * Alert if clicked on outside of element
+         */
+        function handleClickOutside(event: any) {
+            if (searchRef.current && !(searchRef.current as any).contains(event.target)) {
+                setSearchIsFocused(false)
+            }
+        }
+        // Bind the event listener
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            // Unbind the event listener on clean up
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [searchRef]);
 
     const handleOnFocus = () => {
         if (!searchIsFocused)
@@ -90,25 +117,7 @@ export default function SearchAppBar() {
         //     setSearchIsFocused(false);
     };
 
-    const searchRef = React.useRef(null);
-    const searchResultRef = React.useRef(null);
 
-    React.useEffect(() => {
-        /**
-         * Alert if clicked on outside of element
-         */
-        function handleClickOutside(event:any) {
-          if (searchRef.current && !(searchRef.current as any).contains(event.target)) {
-            setSearchIsFocused(false)
-          }
-        }
-        // Bind the event listener
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-          // Unbind the event listener on clean up
-          document.removeEventListener("mousedown", handleClickOutside);
-        };
-      }, [searchRef]);
 
 
     return (
@@ -124,7 +133,7 @@ export default function SearchAppBar() {
                     >
                         READSCAPE
                     </Typography>
-                    <SearchWrapper  ref={searchRef}>
+                    <SearchWrapper ref={searchRef}>
                         <Search>
                             <SearchIconWrapper>
                                 <SearchIcon />

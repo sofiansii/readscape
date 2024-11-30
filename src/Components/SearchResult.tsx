@@ -1,8 +1,11 @@
 import { Button, Card, CardActionArea, CardActions, CardContent, CardMedia, Chip, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Book } from '../Models/Book';
+import { useNavigate } from 'react-router-dom';
 
 function SearchResult() {
+    const navigate = useNavigate();
+
     const Container = styled(Card)(({ theme }) => ({
         position: 'absolute',
         marginTop: 20,
@@ -31,8 +34,14 @@ function SearchResult() {
         backgroundColor: 'lightgrey'
     }));
 
+    function handleBookClick(){
+        console.log("clicked");
+        navigate('/book/' +book.id)
+    }
+
 
     var book: Book = {
+        id: 69,
         title: 'An Introduction to Parallel Programming',
         author: 'Peter Pacheco',
         image_url: 'http://localhost:8080/images/0123742609.jpg',
@@ -40,14 +49,14 @@ function SearchResult() {
         price: 3.59,
         description: "The Lord of the Rings is an epic[1] high fantasy novel[a] by the English author and scholar J. R. R. Tolkien. Set in Middle-earth, the story began as a sequel to Tolkien's 1937 children's book The Hobbit, but eventually developed into a much larger work. Written in stages between 1937 and 1949, The Lord of the Rings is one of the best-selling books ever written, with over 150 million copies sold"
     };
-    var a = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    var a = [1,2,3,4,5,6,7,8,9,11,22,33,44,55,66,77,88,99,111,222,333,444,555,666]
 
     return (
         <Container elevation={2}>
             {a.map((n) =>
-                <Card elevation={0} sx={{  width: { sm:'100%', md: '47%'}, margin: 1 }}
+                <Card key={n} elevation={0} sx={{  width: { sm:'100%', md: '47%'}, margin: 1 }}
                 >
-                    <CardActionArea sx={{display: 'flex', alignItems: 'center',}}>
+                    <CardActionArea onClick={handleBookClick} sx={{display: 'flex', alignItems: 'center',}}>
                         <CardMedia
                             sx={{ height: 150, minWidth: 120, marginLeft: 0.5 }}
 
@@ -62,7 +71,7 @@ function SearchResult() {
                                 {book.description.substring(0, book.description.length > 120 ? 120 : book.description.length - 1) + '...'}
                             </Typography>
                             {book.categories.map((c) =>
-                                <Chip label={c} size="small" sx={{margin:0.2}} />
+                                <Chip key={c} label={c} size="small" sx={{margin:0.2}} />
                             )}
 
 
