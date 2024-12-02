@@ -1,68 +1,112 @@
-import { Box, Button, Card, Container, Typography } from "@mui/material";
+import { Box, Button, Card, Chip, CircularProgress, Container, Typography } from "@mui/material";
 import { useParams } from 'react-router-dom';
 import { Book } from "../Models/Book";
 import { styled } from '@mui/material/styles';
+import React, { useState } from "react";
+import axios from 'axios';
+import AddToCartButton from "../Components/AddToCartButton";
 
-var Image = styled('img')(({ theme }) => ({
-    maxWidth: '45%',
-    height: 'auto',
-    objectFit: 'contain',
-    padding: 1,
+const Image = styled('img')(({ theme }) => ({
+    width: '100%',
+    height: 450,
+    border: "1px solid",
+    borderColor: theme.palette.divider,
+    objectFit: 'fill',
     [theme.breakpoints.down('md')]: {
-        maxWidth: '90%',
+        width: '90%',
+        objectFit: 'contain',
+
     },
 
 }));
-
+const AddToCartWrapper = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    marginRight: 4,
+    marginBottom: 2,
+    border: "1px solid",
+    borderRadius: "4px",
+    borderColor: theme.palette.primary.light,
+    color: theme.palette.primary.light,
+    padding: 0
+}));
 
 
 function DetailsPage() {
+    var [book, setBook] = useState<Book | undefined>(undefined);
     var params = useParams();
 
-    var book: Book = {
-        id: 69,
-        title: 'An Introduction to Parallel Programming',
-        author: 'Peter Pacheco',
-        image_url: 'http://localhost:8080/images/0123742609.jpg',
-        categories: ['Computers', 'Technology'],
-        price: 3.59,
-        description: "The Lord of the Rings is an epic[1] high fantasy novel[a] by the English author and scholar J. R. R. Tolkien. Set in Middle-earth, the story began as a sequel to Tolkien's 1937 children's book The Hobbit, but eventually developed into a much larger work. Written in stages between 1937 and 1949, The Lord of the Rings is one of the best-selling books ever written, with over 150 million copies sold"
-    };
-    return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', margin: 2 }}>
-            <Card elevation={4} sx={{ width: "70%", padding: 4 }}>
-                <Box sx={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexWrap: { xs:'wrap' , md: 'nowrap'}
-                }}>
-                    <Image src={book.image_url} />
-                    <Box sx={{ marginTop: 4, marginLeft: 1, display: 'flex', flexDirection: 'column', minHeight: '100%' }} >
-                        <Typography sx={{ marginBottom: 1 }} variant="h4"  >
-                            {book.title}
-                        </Typography>
-                        <Typography variant="body1"  >
-                            {book.description}
-                        </Typography>
-                        <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: 'flex-end', flexGrow: 1 }}>
-                            <Box sx={{ display: 'flex', marginRight: 4, marginBottom: 2 }}  >
-                                <Typography variant="h4">
-                                    {book.price.toString().split('.')[0]}
-                                </Typography>
-                                <Typography variant="body2">
-                                    {book.price.toString().split('.')[1] + '$'}
-                                </Typography>
+    React.useEffect(() => {
+        axios.get("http://localhost:8080/search?query=" + params['id'])
+            .then(res => {
+                const book = JSON.parse(res.data[0])
+                console.log(book)
+                setBook({
+                    ...book,
+                    image_url: "http://localhost:8080/images/" + book.image_name,
+                    categories: book.category.split('\u0026'),
+                    description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minus dolorem numquam laborum, cum, eaque maiores ratione doloribus nam, ipsum blanditiis at quis. Molestias quas perferendis omnis atque maiores, possimus accusantium."
+                });
+            })
+
+    }, [params])
+
+
+
+    if (book !== undefined)
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', margin: 2 }}>
+                <Card elevation={4} sx={{ width: "70%", padding: 4, minHeight: '100vh' }}>
+                    <Box sx={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'flex-start',
+                        alignItems: 'stretch',
+                        height: 'auto',
+                        flexWrap: { xs: 'wrap', md: 'nowrap' }
+                    }}>
+                        <Box sx={{ width: { sm: '100%', md: '45%' }, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 0 }}>
+                            <Image src={book.image_url} />
+                        </Box>
+                        <Box sx={{
+                            marginLeft: 1, display: 'flex', flexDirection: 'column', width: { sm: '100%', md: '45%' }, padding: 2
+                        }} >
+                            <Typography sx={{ marginBottom: 1, }} variant="h6"  >
+                                {book.title}
+                            </Typography>
+                            <Box sx={{ marginBottom: 1 }}>
+                                {book.categories.map((c) =>
+                                    <Chip key={c} label={c} size="small" sx={{ margin: 0.2 }} />
+                                )}
                             </Box>
+                            <Box sx={{ display: 'flex', marginBottom: 1, color: 'grey' }} >
+                                <Typography variant="body2" >{book.author}</Typography>
+                            </Box>
+                            <Typography variant="body1" sx={{ flexGrow: 1 }} >
+                                {book.description}
+                            </Typography>
+
+                            <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: 'flex-end', marginTop: 1 }}>
+                                <AddToCartWrapper>
+                                    <Typography sx={{marginLeft:1}} variant="h4">
+                                        {book.price.toString().split('.')[0]}
+                                    </Typography>
+                                    <Typography sx={{ marginRight: 0.5 }} variant="body2">
+                                        {book.price.toString().split('.')[1] + '$'}
+                                    </Typography>
+                                    <AddToCartButton />
+                                </AddToCartWrapper>
+                            </Box>
+
                         </Box>
                     </Box>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button variant="contained">Add To Card</Button>
-                </Box>
-            </Card>
-        </Box>
+
+                </Card>
+            </Box>
+        );
+    else return (
+        <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>
+            <CircularProgress></CircularProgress>
+        </Container>
     );
 }
 
