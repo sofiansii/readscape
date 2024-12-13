@@ -30,6 +30,13 @@ const theme = createTheme({
     },
 
   },
+  components: {
+    MuiButton: { 
+      styleOverrides: { 
+        root: { minWidth: 16,minHeight:16 } 
+      } 
+    }
+  }
 });
 
 

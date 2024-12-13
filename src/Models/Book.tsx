@@ -5,7 +5,6 @@ export type Book = {
     author: string;
     categories: Array<string>;
     price: number;
-    description: string
-
-    
+    description: string,
+    quantity: number,
 };

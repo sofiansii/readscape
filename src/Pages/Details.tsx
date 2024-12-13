@@ -1,17 +1,19 @@
-import { Box, Button, Card, Chip, CircularProgress, Container, Typography } from "@mui/material";
-import { useParams } from 'react-router-dom';
+import { Box, Card, CardActionArea, CardContent, CardMedia, Chip, CircularProgress, Container, Typography } from "@mui/material";
+import { useNavigate, useParams } from 'react-router-dom';
 import { Book } from "../Models/Book";
 import { styled } from '@mui/material/styles';
 import React, { useState } from "react";
 import axios from 'axios';
 import AddToCartButton from "../Components/AddToCartButton";
+import BookDisplay from "../Components/Book";
+import { searchBooks } from "../helper/HeplerBook";
 
 const Image = styled('img')(({ theme }) => ({
     width: '100%',
-    height: 450,
+    maxHeight: 550,
     border: "1px solid",
     borderColor: theme.palette.divider,
-    objectFit: 'fill',
+    objectFit: 'contain',
     [theme.breakpoints.down('md')]: {
         width: '90%',
         objectFit: 'contain',
@@ -33,29 +35,29 @@ const AddToCartWrapper = styled(Box)(({ theme }) => ({
 
 function DetailsPage() {
     var [book, setBook] = useState<Book | undefined>(undefined);
+    var [suggestions, setSuggestions] = useState<Book[] | undefined>(undefined);
+    const navigate = useNavigate();
     var params = useParams();
 
     React.useEffect(() => {
-        axios.get("http://localhost:8080/search?query=" + params['id'])
-            .then(res => {
-                const book = JSON.parse(res.data[0])
-                console.log(book)
-                setBook({
-                    ...book,
-                    image_url: "http://localhost:8080/images/" + book.image_name,
-                    categories: book.category.split('\u0026'),
-                    description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minus dolorem numquam laborum, cum, eaque maiores ratione doloribus nam, ipsum blanditiis at quis. Molestias quas perferendis omnis atque maiores, possimus accusantium."
-                });
-            })
+        setBook(undefined)
+        setSuggestions(undefined)
+        searchBooks(params['id'] as string).then(data => {
+            if (data.length > 0) {
+                setBook(data[0])
+                if (data[0].categories.length > 0)
+                    searchBooks(data[0].categories[0])
+                        .then(suggestionData => setSuggestions(suggestionData.filter(b => b.id != data[0].id)))
+            }
 
+        })
     }, [params])
-
-
 
     if (book !== undefined)
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', margin: 2 }}>
                 <Card elevation={4} sx={{ width: "70%", padding: 4, minHeight: '100vh' }}>
+                    {/* main content */}
                     <Box sx={{
                         display: 'flex',
                         flexDirection: 'row',
@@ -87,21 +89,62 @@ function DetailsPage() {
 
                             <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: 'flex-end', marginTop: 1 }}>
                                 <AddToCartWrapper>
-                                    <Typography sx={{marginLeft:1}} variant="h4">
+                                    <Typography sx={{ marginLeft: 1 }} variant="h4">
                                         {book.price.toString().split('.')[0]}
                                     </Typography>
                                     <Typography sx={{ marginRight: 0.5 }} variant="body2">
                                         {book.price.toString().split('.')[1] + '$'}
                                     </Typography>
-                                    <AddToCartButton />
+                                    <AddToCartButton book={book} />
                                 </AddToCartWrapper>
                             </Box>
 
                         </Box>
                     </Box>
+                    {/* suggestions */}
+                    <Typography sx={{ marginTop: 5, marginBottom: 1 }} variant="h5">You Might Also Like</Typography>
+                    {suggestions === undefined ?
+                        <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>
+                            <CircularProgress></CircularProgress>
+                        </Container> : // else 
+                        <Box sx={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            justifyContent:"space-around",
+                            width: "100%",
+                            overflowX: "hidden",
+                            paddingInline: 1,
+                            flexWrap: { sm: "wrap", md: "nowrap" }
 
-                </Card>
-            </Box>
+                        }}>
+                            {suggestions.slice(0,4).map(book =>
+                                <CardActionArea 
+                                onClick={()=> navigate('/book/' + book.id)}
+                                key={book.id} sx={{ width: { sm: "70%", md: "25%" } , marginBlock: 1 }}>
+                                    <Card elevation={0} sx={{padding:1}} >
+                                        <CardMedia
+                                            component="img"
+                                            src={book.image_url}
+                                            title={book.title}
+                                        />
+                                        <CardContent sx={{ paddingInline: 0.5 }} >
+                                            <Box sx={{ marginBottom: 0.5 }}>
+                                                {book.categories.map((c) =>
+                                                    <Chip key={c} label={c} size="small" sx={{ margin: 0.2 }} />
+                                                )}
+                                            </Box>
+                                            <Typography sx={{ marginBottom: 1 }} variant="body2" fontSize={12}>
+                                                {book.title.substring(0, book.title.length > 90 ? 90 : book.title.length - 1) + '...'}
+                                            </Typography>
+                                        </CardContent>
+                                    </Card>
+
+                                </CardActionArea>
+                            )}
+                        </Box>
+                    }
+                </Card >
+            </Box >
         );
     else return (
         <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>

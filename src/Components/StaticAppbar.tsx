@@ -95,17 +95,14 @@ export default function SearchAppBar() {
 
 
     function fetchBooks(query: string) {
-        console.log('fetcging')
-        axios.get("http://localhost:8080/search?query=" + query)
+        axios.get("http://localhost:8080/search",{params:{query}})
             .then(res => {
                 const data = res.data;
                 setIsLoading(false);
                 if (data.length > 0) {
                     var books = Array<Book>();
-                    console.log(data);
                     for (const index in data) {
                         let jsonLine = JSON.parse(data[index]);
-                        console.log(jsonLine['category']);
                         books.push({
                             id: jsonLine['isbn'],
                             title: jsonLine['title'],
@@ -113,7 +110,8 @@ export default function SearchAppBar() {
                             price: jsonLine['price'],
                             author: jsonLine['author'],
                             description: "description",
-                            image_url: "http://localhost:8080/images/" + jsonLine['image_name']
+                            image_url: "http://localhost:8080/images/" + jsonLine['image_name'],
+                            quantity:1
                         });
                     }
                     setSearchResult(books);
@@ -159,11 +157,6 @@ export default function SearchAppBar() {
             setSearchIsFocused(true);
     };
 
-    const handleBlur = () => {
-
-        // if (searchIsFocused)
-        //     setSearchIsFocused(false);
-    };
     const handleSearchtextChange = (e: any) => {
         setSearchText(e.target.value)
     }
@@ -193,7 +186,6 @@ export default function SearchAppBar() {
                             value={searchtext}
                             sx={{ width: '100%' }}
                             onFocus={handleOnFocus}
-                            onBlur={handleBlur}
                             placeholder="Search…"
                             inputProps={{ 'aria-label': 'search' }}
                         />
