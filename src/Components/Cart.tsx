@@ -1,9 +1,7 @@
 import { Box, Button, Fade, IconButton, Paper, Popper, Typography } from "@mui/material";
 import CartPng from '../static/images/Cart.png'
 import { useCartStore } from "../Store/CartStore";
-import { useRef, useState } from "react";
 import BookDisplay from "./Book";
-import { Book } from '../Models/Book';
 import styled from "styled-components";
 import React from "react";
 
@@ -14,7 +12,7 @@ const OderButton = styled(Button)(({ theme }) => ({
 }))
 
 function CardActionArea() {
-    const { cart, setCart } = useCartStore();
+    const { cart } = useCartStore();
     const [ cartVisible, setCartVisible ] = React.useState(false);
     const buttonRef = React.useRef(null);
     const CartContentRef = React.useRef(null);
@@ -36,18 +34,20 @@ function CardActionArea() {
             // Unbind the event listener on clean up
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [CartContentRef]);
+    }, [CartContentRef,cartVisible]);
 
     function handleButtonClick(){
         if (cart.length > 0)
         setCartVisible((cartVisible) => !cartVisible)
     }
 
+    if(cartVisible === true && cart.length === 0)
+        setCartVisible(false)
     return (
         <Box>
             <IconButton onClick={handleButtonClick} ref={buttonRef} sx={{ marginLeft: 1, color: 'white', height: '100%', '&:hover': { backgroundColor: '#a64db5' } }}>
 
-                <img src={CartPng} style={{ height: '30px' }} />
+                <img alt="cart" src={CartPng} style={{ height: '30px' }} />
                 <Typography variant='body2' sx={{
                     padding: 0.2,
                     position: 'absolute', left: -2, top: -2, backgroundColor: 'purple',
@@ -56,12 +56,11 @@ function CardActionArea() {
 
             </IconButton>
             <Popper
-                
-                sx={{ zIndex: 1200, width: "30%", }}
-                open={cartVisible}
+                sx={{ zIndex: 1200, width: {sm:"70%", md:"50%", lg:"30%"} }}
+                open={cartVisible && cart.length > 0}
                 anchorEl={buttonRef.current}
                 placement={"bottom-start"}
-                transition
+                transition = {cart.length > 0  && cartVisible ? true: false}
             >
                 {({ TransitionProps }) => (
                     <Fade {...TransitionProps} timeout={350}>
@@ -83,7 +82,6 @@ function CardActionArea() {
                                     <OderButton variant="outlined" sx={{  scale:1.01 }} >Order Now</OderButton>
                                 </Box>
                             </Box>
-
                         </Paper>
                     </Fade>
                 )}

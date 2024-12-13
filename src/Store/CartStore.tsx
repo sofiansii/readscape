@@ -2,9 +2,9 @@ import {create} from 'zustand'
 import { Book } from '../Models/Book';
 
 export const useCartStore = create<{cart:Book[],setCart:Function,addToCart:Function}>( (set) => ({
-    cart: Array<Book>(),
+    cart: loadPersistedData(),
     setCart: (cart : Book[] ) => set((oldCart) => {
-        // persist session between 
+        persistToStorage(cart)
         return ({cart:cart})
     }),
     addToCart: (book:Book) => set((oldCart) => {
@@ -16,7 +16,17 @@ export const useCartStore = create<{cart:Book[],setCart:Function,addToCart:Funct
             cart.push(book)
         }
         else existingBook.quantity += 1;
-        console.log(cart)
+        persistToStorage(cart)
         return {cart} ;
     } )
 }));
+
+function persistToStorage(cart:Book[]){
+    localStorage.setItem("cart",JSON.stringify(cart))
+}
+function loadPersistedData() : Book[] {
+    const dataString = localStorage.getItem("cart");
+    if (dataString == null )
+        return Array<Book>();
+    return JSON.parse(dataString )?? Array<Book>();
+}

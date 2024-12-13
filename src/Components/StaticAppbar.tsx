@@ -1,21 +1,17 @@
 import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import InputBase from '@mui/material/InputBase';
 import BookSharpIcon from '@mui/icons-material/BookSharp';
 import SearchIcon from '@mui/icons-material/Search';
-import ShoppingCartSharpIcon from '@mui/icons-material/ShoppingCartSharp';
 import SearchResult from './SearchResult';
-import { CircularProgress, IconButton } from '@mui/material';
+import { CircularProgress } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 import { Book } from '../Models/Book';
-import axios from 'axios';
-import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
-import { purple } from '@mui/material/colors';
 import Cart from './Cart';
+import { searchBooks } from '../helper/HeplerBook';
 
 const SearchWrapper = styled('div')(({ theme }) => ({
     flexGrow: 1,
@@ -86,7 +82,6 @@ export default function SearchAppBar() {
     const [searchtext, setSearchText] = React.useState("");
     const [searchResul, setSearchResult] = React.useState<Array<Book>>([]);
     const searchRef = React.useRef(null);
-    const searchResultRef = React.useRef(null);
     const location = useLocation();
 
     React.useEffect(() => {
@@ -95,36 +90,10 @@ export default function SearchAppBar() {
 
 
     function fetchBooks(query: string) {
-        axios.get("http://localhost:8080/search",{params:{query}})
-            .then(res => {
-                const data = res.data;
-                setIsLoading(false);
-                if (data.length > 0) {
-                    var books = Array<Book>();
-                    for (const index in data) {
-                        let jsonLine = JSON.parse(data[index]);
-                        books.push({
-                            id: jsonLine['isbn'],
-                            title: jsonLine['title'],
-                            categories: (jsonLine['category'] as string).split('\u0026'),
-                            price: jsonLine['price'],
-                            author: jsonLine['author'],
-                            description: "description",
-                            image_url: "http://localhost:8080/images/" + jsonLine['image_name'],
-                            quantity:1
-                        });
-                    }
-                    setSearchResult(books);
-                } else
-                    setSearchResult([]);
-            })
-            .catch(error => {
-                setIsLoading(false);
-                console.log(error)
-            });
+        searchBooks(query).then(res => setSearchResult(res))
     }
     React.useEffect(() => {
-        if (searchtext.trim().length == 0) {
+        if (searchtext.trim().length === 0) {
             setSearchResult([]);
             return;
         }

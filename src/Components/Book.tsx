@@ -1,7 +1,6 @@
-import { Box, Button, Card, CardActionArea, CardContent, CardMedia, Chip, IconButton, Input, styled, SxProps, Theme, Typography } from "@mui/material";
+import { Box, CardActionArea, CardContent, CardMedia, Chip, IconButton, Typography } from "@mui/material";
 import { Book } from "../Models/Book";
 import Quantity from './Quantity';
-import { useEffect, useState } from "react";
 import { useCartStore } from "../Store/CartStore";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { red } from "@mui/material/colors";
@@ -21,24 +20,24 @@ function BookDisplay(props: Props) {
     var { cart, setCart } = useCartStore();
 
     function privateHandleButtonClick() {
-        if (props.handleBookClick != undefined)
+        if (props.handleBookClick !== undefined)
             props.handleBookClick(props.book.id)
     }
 
     const Container = (_props: any) => props.handleBookClick === undefined ?
-        <Box sx={{ display: 'flex', alignItems: 'stretch', justifyContent: 'flex-start' }}>{_props.children}</Box> :
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>{_props.children}</Box> :
         <CardActionArea onClick={privateHandleButtonClick} sx={{ display: 'flex', alignItems: 'stretch', justifyContent: 'flex-start' }}>{_props.children}</CardActionArea>;
 
     function handleQuantityChange(newQuantity: number) {
         const newCart = [...cart];
-        var bookIndex = cart.findIndex((b => b.id == props.book.id));
+        var bookIndex = cart.findIndex((b => b.id === props.book.id));
         cart[bookIndex].quantity = newQuantity;
         setCart(newCart)
     }
 
     function handleDeleteButton() {
         const newCart = [...cart];
-        var bookIndex = cart.findIndex((b => b.id == props.book.id));
+        var bookIndex = cart.findIndex((b => b.id === props.book.id));
         newCart.splice(bookIndex, 1)
         setCart(newCart)
     }
@@ -50,7 +49,7 @@ function BookDisplay(props: Props) {
             title={props.book.title}
         />
         <CardContent sx={{ paddingInline: 2, paddingBlock: 1, display: 'flex', flexDirection: 'column' }} >
-            <Typography sx={{ marginBottom: 1 }} component="h6" fontSize={15}>
+            <Typography sx={{ marginBottom: 1 }} component="h6" fontSize={14}>
                 {props.book.title}
             </Typography>
             {props.displayPrice ? <Typography variant="body2" letterSpacing={1}>{+props.book.price.toFixed(2) + "€"}</Typography> : null}

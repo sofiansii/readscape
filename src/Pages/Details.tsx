@@ -3,9 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Book } from "../Models/Book";
 import { styled } from '@mui/material/styles';
 import React, { useState } from "react";
-import axios from 'axios';
 import AddToCartButton from "../Components/AddToCartButton";
-import BookDisplay from "../Components/Book";
 import { searchBooks } from "../helper/HeplerBook";
 
 const Image = styled('img')(({ theme }) => ({
@@ -47,7 +45,7 @@ function DetailsPage() {
                 setBook(data[0])
                 if (data[0].categories.length > 0)
                     searchBooks(data[0].categories[0])
-                        .then(suggestionData => setSuggestions(suggestionData.filter(b => b.id != data[0].id)))
+                        .then(suggestionData => setSuggestions(suggestionData.filter(b => b.id !== data[0].id)))
             }
 
         })

@@ -1,24 +1,9 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import reportWebVitals from './reportWebVitals';
-import { BrowserRouter, createBrowserRouter, Outlet, Route, Router, RouterProvider, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import StaticAppbar from './Components/StaticAppbar';
 import HomePage from './Pages/Home';
 import DetailsPage from './Pages/Details';
-import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
-import { green, orange, purple } from '@mui/material/colors';
-import { useCartStore } from './Store/CartStore';
-
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <HomePage />
-  },
-  {
-    path: "/Book/{id}",
-    element: <DetailsPage />
-  }
-])
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { green, purple } from '@mui/material/colors';
 
 const theme = createTheme({
   palette: {
