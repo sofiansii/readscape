@@ -8,7 +8,7 @@ import BookSharpIcon from '@mui/icons-material/BookSharp';
 import SearchIcon from '@mui/icons-material/Search';
 import SearchResult from './SearchResult';
 import { CircularProgress } from '@mui/material';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Book } from '../Models/Book';
 import Cart from './Cart';
 import { searchBooks } from '../helper/HeplerBook';
@@ -83,6 +83,7 @@ export default function SearchAppBar() {
     const [searchResul, setSearchResult] = React.useState<Array<Book>>([]);
     const searchRef = React.useRef(null);
     const location = useLocation();
+    const navigate = useNavigate();
 
     React.useEffect(() => {
         setSearchIsFocused(false);
@@ -90,8 +91,12 @@ export default function SearchAppBar() {
 
 
     function fetchBooks(query: string) {
-        searchBooks(query).then(res => setSearchResult(res))
+        searchBooks(query).then(res => {
+            setIsLoading(false);
+            setSearchResult(res);
+        })
     }
+
     React.useEffect(() => {
         if (searchtext.trim().length === 0) {
             setSearchResult([]);
@@ -105,18 +110,14 @@ export default function SearchAppBar() {
 
 
     React.useEffect(() => {
-        /**
-         * Alert if clicked on outside of element
-         */
+
         function handleClickOutside(event: any) {
             if (searchRef.current && !(searchRef.current as any).contains(event.target)) {
                 setSearchIsFocused(false)
             }
         }
-        // Bind the event listener
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
-            // Unbind the event listener on clean up
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [searchRef]);
@@ -136,12 +137,13 @@ export default function SearchAppBar() {
     return (
         <AppBar position="sticky">
             <Toolbar >
-                <BookSharpIcon sx={{ mr: 1 }} />
+                <BookSharpIcon onClick={() => navigate('/')} sx={{ mr: 1,  '&:hover':{cursor:'pointer'} }} />
                 <Typography
+                    onClick={() => navigate('/')}
                     variant="h6"
                     noWrap
                     component="div"
-                    sx={{ display: { xs: 'none', md: 'block' } }}
+                    sx={{ display: { xs: 'none', md: 'block', '&:hover':{cursor:'pointer'} } }}
                 >
                     READSCAPE
                 </Typography>

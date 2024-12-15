@@ -4,6 +4,7 @@ import HomePage from './Pages/Home';
 import DetailsPage from './Pages/Details';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { green, purple } from '@mui/material/colors';
+import StaticFooter from './Components/StaticFooter';
 
 const theme = createTheme({
   palette: {
@@ -38,6 +39,7 @@ function App() {
             <Route path="book/:id" element={<DetailsPage />}>
             </Route>
           </Routes>
+          <StaticFooter/>
         </BrowserRouter>
     </ThemeProvider>
   );

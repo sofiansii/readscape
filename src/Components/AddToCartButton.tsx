@@ -7,7 +7,7 @@ interface Props {
   book: Book
 }
 function AddToCartButton(props: Props) {
-  var { cart, addToCart } = useCartStore();
+  var {  addToCart } = useCartStore();
   const [open, setOpen] = React.useState(false);
 
 

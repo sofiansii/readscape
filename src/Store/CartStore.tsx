@@ -1,5 +1,6 @@
 import {create} from 'zustand'
 import { Book } from '../Models/Book';
+import { v4 as uuidv4 } from 'uuid'
 
 export const useCartStore = create<{cart:Book[],setCart:Function,addToCart:Function}>( (set) => ({
     cart: loadPersistedData(),
@@ -23,6 +24,9 @@ export const useCartStore = create<{cart:Book[],setCart:Function,addToCart:Funct
 
 function persistToStorage(cart:Book[]){
     localStorage.setItem("cart",JSON.stringify(cart))
+    // set user id
+    if(localStorage.getItem("userId") === null)
+        localStorage.setItem("userId", uuidv4())
 }
 function loadPersistedData() : Book[] {
     const dataString = localStorage.getItem("cart");
